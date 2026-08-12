@@ -1,0 +1,24 @@
+{
+  "name": "Bible Reading PWA",
+  "short_name": "Bible PWA",
+  "description": "High-frequency four-track daily Scripture reading companion with YouVersion ESV audio links and NotebookLM study bridge.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F5F0",
+  "theme_color": "#536B92",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
