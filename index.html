@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Four-Track Bible Reading System</title>
+  <!-- Google Fonts: Inter & Newsreader -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            canvas: { light: '#F7F5F0', dark: '#171715' },
+            surface: { light: '#FFFFFF', dark: '#201F1C' },
+            mutedSurface: { light: '#F0EDE7', dark: '#2A2925' },
+            border: { light: '#E6E1D8', dark: '#35332E' },
+            txt: {
+              primaryLight: '#22211F', primaryDark: '#F1EEE6',
+              secondaryLight: '#716E68', secondaryDark: '#AAA69D'
+            },
+            track: {
+              nt: '#536B92', ot: '#A57846', psalms: '#67806D', proverbs: '#A56359', success: '#668269'
+            }
+          },
+          fontFamily: {
+            serif: ['Newsreader', 'Source Serif 4', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { -webkit-tap-highlight-color: transparent; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(113, 110, 104, 0.2); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(113, 110, 104, 0.4); }
+  </style>
+</head>
+<body class="h-full bg-canvas-light text-txt-primaryLight dark:bg-canvas-dark dark:text-txt-primaryDark font-sans antialiased flex flex-col pb-20 selection:bg-track-nt selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-30 border-b border-border-light dark:border-border-dark bg-surface-light/90 dark:bg-surface-dark/90 backdrop-blur-md px-4 py-3">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-track-nt flex items-center justify-center text-white shadow-sm">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="font-serif font-bold text-lg text-txt-primaryLight dark:text-txt-primaryDark tracking-tight block leading-tight">
+            Scripture Reading
+          </span>
+          <span class="text-[10px] font-sans font-medium text-txt-secondaryLight dark:text-txt-secondaryDark uppercase tracking-widest block">
+            Four-Track High-Frequency System
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button id="themeToggle" class="p-2 rounded-xl border border-border-light dark:border-border-dark text-txt-secondaryLight dark:text-txt-secondaryDark hover:bg-mutedSurface-light dark:hover:bg-mutedSurface-dark transition-colors" title="Toggle theme">
+          <i data-lucide="moon" class="w-4 h-4 text-track-nt dark:hidden"></i>
+          <i data-lucide="sun" class="w-4 h-4 text-track-ot hidden dark:block"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="flex-1 w-full max-w-4xl mx-auto px-4 py-6">
+    <!-- TAB 1: TODAY DASHBOARD -->
+    <div id="tab-today" class="space-y-6 animate-in fade-in duration-200">
+      <!-- Date Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-border-light dark:border-border-dark">
+        <div>
+          <p id="headerDayOfWeek" class="text-xs font-semibold tracking-wider text-txt-secondaryLight dark:text-txt-secondaryDark uppercase">
+            Wednesday
+          </p>
+          <h1 id="headerDateStr" class="text-2xl md:text-3xl font-serif font-bold text-txt-primaryLight dark:text-txt-primaryDark mt-0.5">
+            12 August 2026
+          </h1>
+          <p id="headerDayNumber" class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark mt-1">
+            Day 224 of 365
+          </p>
+        </div>
+
+        <div class="flex items-center space-x-1.5">
+          <button id="prevDayBtn" class="p-2 rounded-lg text-txt-secondaryLight dark:text-txt-secondaryDark hover:bg-mutedSurface-light dark:hover:bg-mutedSurface-dark">
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+          </button>
+          <button id="goTodayBtn" class="hidden px-3 py-1.5 text-xs font-medium rounded-lg bg-track-nt text-white hover:bg-opacity-90 shadow-sm flex items-center space-x-1">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>Today</span>
+          </button>
+          <button id="nextDayBtn" class="p-2 rounded-lg text-txt-secondaryLight dark:text-txt-secondaryDark hover:bg-mutedSurface-light dark:hover:bg-mutedSurface-dark">
+            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Daily Progress Banner -->
+      <div class="rounded-xl bg-surface-light dark:bg-surface-dark p-4 border border-border-light dark:border-border-dark shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="book-open" class="w-4 h-4 text-track-nt"></i>
+            <span class="text-xs font-semibold uppercase tracking-wider text-txt-secondaryLight dark:text-txt-secondaryDark">
+              Today's Reading Progress
+            </span>
+          </div>
+          <span id="dailyProgressText" class="text-xs font-mono font-medium text-txt-primaryLight dark:text-txt-primaryDark">
+            6 of 8 chapters (75%)
+          </span>
+        </div>
+        <div class="w-full h-2 rounded-full bg-mutedSurface-light dark:bg-mutedSurface-dark overflow-hidden">
+          <div id="dailyProgressBar" class="h-full rounded-full bg-track-nt transition-all duration-300" style="width: 75%"></div>
+        </div>
+        <div id="dayCompletedBanner" class="hidden mt-3 p-2.5 rounded-lg bg-track-success/10 border border-track-success/20 flex items-center justify-center space-x-2 text-track-success text-xs font-medium">
+          <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+          <span>Today's reading is complete.</span>
+        </div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-sm">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="sparkles" class="w-4 h-4 text-track-ot shrink-0"></i>
+          <span class="text-xs font-serif italic text-txt-secondaryLight dark:text-txt-secondaryDark">
+            "Your word is a lamp to my feet and a light to my path." — Psalm 119:105
+          </span>
+        </div>
+
+        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+          <button id="openAllModalBtn" class="flex-1 sm:flex-initial px-3.5 py-2 text-xs font-medium rounded-lg border border-border-light dark:border-border-dark bg-canvas-light dark:bg-canvas-dark hover:bg-mutedSurface-light dark:hover:bg-mutedSurface-dark transition-all flex items-center justify-center space-x-1.5">
+            <i data-lucide="book-open" class="w-3.5 h-3.5 text-track-nt"></i>
+            <span>Open Today's Readings</span>
+          </button>
+          <button id="prepareStudyBriefBtn" class="flex-1 sm:flex-initial px-3.5 py-2 text-xs font-medium rounded-lg bg-track-nt text-white hover:bg-opacity-90 transition-all flex items-center justify-center space-x-1.5 shadow-sm">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>Prepare Study Brief</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Track Cards Grid -->
+      <div class="grid grid-cols-1 gap-6" id="trackCardsContainer">
+        <!-- Rendered dynamically via JavaScript -->
+      </div>
+    </div>
+
+    <!-- TAB 2: CALENDAR -->
+    <div id="tab-calendar" class="hidden space-y-6 animate-in fade-in duration-200">
+      <div class="border-b border-border-light dark:border-border-dark pb-4">
+        <h1 class="text-2xl font-serif font-bold text-txt-primaryLight dark:text-txt-primaryDark">Reading Calendar</h1>
+        <p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark mt-1">365-day annual reading schedule visualization.</p>
+      </div>
+      <div class="flex items-center justify-between p-4 rounded-xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-sm">
+        <button id="calPrevMonth" class="p-2 rounded-lg text-txt-secondaryLight dark:text-txt-secondaryDark hover:bg-mutedSurface-light dark:hover:bg-mutedSurface-dark"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+        <h2 id="calMonthTitle" class="text-lg font-serif font-bold text-txt-primaryLight dark:text-txt-primaryDark">August 2026</h2>
+        <button id="calNextMonth" class="p-2 rounded-lg text-txt-secondaryLight dark:text-txt-secondaryDark hover:bg-mutedSurface-light dark:hover:bg-mutedSurface-dark"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-4 rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-sm">
+        <div class="grid grid-cols-7 text-center font-sans text-xs font-semibold text-txt-secondaryLight dark:text-txt-secondaryDark mb-2 pb-2 border-b border-border-light/50 dark:border-border-dark/50">
+          <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: PROGRESS analytics -->
+    <div id="tab-progress" class="hidden space-y-6 animate-in fade-in duration-200">
+      <div class="border-b border-border-light dark:border-border-dark pb-4">
+        <h1 class="text-2xl font-serif font-bold text-txt-primaryLight dark:text-txt-primaryDark">Annual Progress</h1>
+        <p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark mt-1">Rotations and completion status across all four tracks.</p>
+      </div>
+      <div id="progressContent" class="space-y-4"></div>
+    </div>
+
+    <!-- TAB 4: CATCH-UP -->
+    <div id="tab-catchup" class="hidden space-y-6 animate-in fade-in duration-200">
+      <div class="border-b border-border-light dark:border-border-dark pb-4">
+        <h1 class="text-2xl font-serif font-bold text-txt-primaryLight dark:text-txt-primaryDark">Catch-Up View</h1>
+        <p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark mt-1">Unfinished readings from past calendar days.</p>
+      </div>
+      <div id="catchupContainer" class="space-y-4"></div>
+    </div>
+
+    <!-- TAB 5: STUDY WORKSPACE -->
+    <div id="tab-study" class="hidden space-y-6 animate-in fade-in duration-200">
+      <div class="border-b border-border-light dark:border-border-dark pb-4 flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-serif font-bold text-txt-primaryLight dark:text-txt-primaryDark">Study Workspace</h1>
+          <p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark mt-1">Notes and exegesis preparation for NotebookLM.</p>
+        </div>
+        <button onclick="window.open('https://notebooklm.google.com/', '_blank')" class="px-3.5 py-2 text-xs font-medium rounded-lg bg-track-ot text-white flex items-center space-x-1.5 shadow-sm">
+          <span>NotebookLM</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+      <div class="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark space-y-3">
+        <h2 class="font-serif font-bold text-lg">Daily Exegesis Notes</h2>
+        <textarea id="studyWorkspaceTextarea" rows="6" placeholder="Enter observations, cross-references, or study questions for NotebookLM..." class="w-full text-xs p-3 rounded-xl border border-border-light dark:border-border-dark bg-canvas-light dark:bg-canvas-dark text-txt-primaryLight dark:text-txt-primaryDark focus:outline-none focus:ring-1 focus:ring-track-nt"></textarea>
+        <div class="flex justify-end">
+          <button id="saveStudyNotesBtn" class="px-4 py-2 text-xs font-medium rounded-lg bg-track-nt text-white flex items-center space-x-1 shadow-sm">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i><span>Save Note</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: SETTINGS -->
+    <div id="tab-settings" class="hidden space-y-6 animate-in fade-in duration-200">
+      <div class="border-b border-border-light dark:border-border-dark pb-4">
+        <h1 class="text-2xl font-serif font-bold text-txt-primaryLight dark:text-txt-primaryDark">Settings</h1>
+        <p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark mt-1">Application preferences and configuration.</p>
+      </div>
+      <div class="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark space-y-4">
+        <h2 class="font-serif font-bold text-lg">Bible Translation</h2>
+        <input type="text" readonly value="English Standard Version (ESV) — YouVersion ID 59" class="w-full p-2.5 rounded-lg bg-canvas-light dark:bg-canvas-dark border border-border-light dark:border-border-dark text-xs font-mono">
+      </div>
+      <div class="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark space-y-4">
+        <h2 class="font-serif font-bold text-lg">Data Storage</h2>
+        <div class="p-3 rounded-xl bg-canvas-light dark:bg-canvas-dark text-xs text-track-success font-medium">
+          Local Storage & IndexedDB Mode Active (Offline-ready)
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-md border-t border-border-light dark:border-border-dark px-2 py-1.5 shadow-lg max-w-4xl mx-auto">
+    <div class="flex items-center justify-around">
+      <button data-tab="today" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-track-nt font-semibold">
+        <i data-lucide="layout-dashboard" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Today</span>
+      </button>
+      <button data-tab="calendar" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-txt-secondaryLight dark:text-txt-secondaryDark">
+        <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Calendar</span>
+      </button>
+      <button data-tab="progress" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-txt-secondaryLight dark:text-txt-secondaryDark">
+        <i data-lucide="check-square" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Progress</span>
+      </button>
+      <button data-tab="catchup" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-txt-secondaryLight dark:text-txt-secondaryDark">
+        <i data-lucide="clock" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Catch-Up</span>
+      </button>
+      <button data-tab="study" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-txt-secondaryLight dark:text-txt-secondaryDark">
+        <i data-lucide="book-open" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Study</span>
+      </button>
+      <button data-tab="settings" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-txt-secondaryLight dark:text-txt-secondaryDark">
+        <i data-lucide="settings" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Settings</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Open All Passages Modal -->
+  <div id="openAllModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div class="w-full max-w-lg rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-border-light dark:border-border-dark mb-4">
+        <h2 class="text-xl font-serif font-bold">Today's Assigned Passages</h2>
+        <button id="closeOpenAllModal" class="p-1 rounded-lg text-txt-secondaryLight dark:text-txt-secondaryDark"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="openAllList" class="space-y-3"></div>
+      <div class="mt-6 flex justify-end">
+        <button id="btnDoneOpenAll" class="px-4 py-2 text-xs font-medium rounded-lg bg-mutedSurface-light dark:bg-mutedSurface-dark">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NotebookLM Export Modal -->
+  <div id="notebookModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div class="w-full max-w-2xl rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark p-6 shadow-xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-4 border-b border-border-light dark:border-border-dark mb-4">
+        <h2 class="text-xl font-serif font-bold">NotebookLM Study Brief</h2>
+        <button id="closeNotebookModal" class="p-1 rounded-lg text-txt-secondaryLight dark:text-txt-secondaryDark"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button id="copyBriefBtn" class="px-3 py-2 text-xs font-medium rounded-lg bg-track-nt text-white flex items-center space-x-1 shadow-sm">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i><span id="copyBriefLabel">Copy Study Brief</span>
+        </button>
+        <button id="downloadBriefBtn" class="px-3 py-2 text-xs font-medium rounded-lg border border-border-light dark:border-border-dark flex items-center space-x-1">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i><span>Download .md</span>
+        </button>
+        <button onclick="window.open('https://notebooklm.google.com/', '_blank')" class="px-3 py-2 text-xs font-medium rounded-lg bg-track-ot text-white flex items-center space-x-1 shadow-sm ml-auto">
+          <span>Open NotebookLM</span><i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+      <pre id="notebookMarkdownPreview" class="flex-1 min-h-[200px] overflow-y-auto p-4 rounded-xl bg-canvas-light dark:bg-canvas-dark border border-border-light dark:border-border-dark font-mono text-xs whitespace-pre-wrap"></pre>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE JS ENGINE -->
+  <script>
+    // State management & Schedule Generation
+    const STATE = {
+      currentDateStr: '2026-08-12',
+      completions: JSON.parse(localStorage.getItem('bible_pwa_completions_demo') || '{}'),
+      notes: JSON.parse(localStorage.getItem('bible_pwa_notes_demo') || '{}'),
+      calMonthIndex: 7
+    };
+
+    // Books canonical metadata
+    const NT_BOOKS = [
+      ['MAT', 'Matthew', 28], ['MRK', 'Mark', 16], ['LUK', 'Luke', 24], ['JHN', 'John', 21],
+      ['ACT', 'Acts', 28], ['ROM', 'Romans', 16], ['1CO', '1 Corinthians', 16], ['2CO', '2 Corinthians', 13],
+      ['GAL', 'Galatians', 6], ['EPH', 'Ephesians', 6], ['PHP', 'Philippians', 4], ['COL', 'Colossians', 4],
+      ['1TH', '1 Thessalonians', 5], ['2TH', '2 Thessalonians', 3], ['1TI', '1 Timothy', 6], ['2TI', '2 Timothy', 4],
+      ['TIT', 'Titus', 3], ['PHM', 'Philemon', 1], ['HEB', 'Hebrews', 13], ['JAS', 'James', 5],
+      ['1PE', '1 Peter', 5], ['2PE', '2 Peter', 3], ['1JN', '1 John', 5], ['2JN', '2 John', 1],
+      ['3JN', '3 John', 1], ['JUD', 'Jude', 1], ['REV', 'Revelation', 22]
+    ];
+
+    const OT_BOOKS = [
+      ['GEN', 'Genesis', 50], ['EXO', 'Exodus', 40], ['LEV', 'Leviticus', 27], ['NUM', 'Numbers', 36],
+      ['DEU', 'Deuteronomy', 34], ['JOS', 'Joshua', 24], ['JDG', 'Judges', 21], ['RUT', 'Ruth', 4],
+      ['1SA', '1 Samuel', 31], ['2SA', '2 Samuel', 24], ['1KI', '1 Kings', 22], ['2KI', '2 Kings', 25],
+      ['1CH', '1 Chronicles', 29], ['2CH', '2 Chronicles', 36], ['EZR', 'Ezra', 10], ['NEH', 'Nehemiah', 13],
+      ['EST', 'Esther', 10], ['JOB', 'Job', 42], ['ECC', 'Ecclesiastes', 12], ['SNG', 'Song of Solomon', 8],
+      ['ISA', 'Isaiah', 66], ['JER', 'Jeremiah', 52], ['LAM', 'Lamentations', 5], ['EZK', 'Ezekiel', 48],
+      ['DAN', 'Daniel', 12], ['HOS', 'Hosea', 14], ['JOL', 'Joel', 3], ['AMO', 'Amos', 9],
+      ['OBA', 'Obadiah', 1], ['JON', 'Jonah', 4], ['MIC', 'Micah', 7], ['NAM', 'Nahum', 3],
+      ['HAB', 'Habakkuk', 3], ['ZEP', 'Zephaniah', 3], ['HAG', 'Haggai', 2], ['ZEC', 'Zechariah', 14], ['MAL', 'Malachi', 4]
+    ];
+
+    function buildNTMaster() {
+      const list = [];
+      for (let rot = 1; rot <= 4; rot++) {
+        NT_BOOKS.forEach(b => {
+          for (let ch = 1; ch <= b[2]; ch++) {
+            list.push({ track: 'nt', bookCode: b[0], bookName: b[1], chapter: ch, rotation: rot });
+          }
+        });
+      }
+      return list;
+    }
+
+    function buildOTMaster() {
+      const list = [];
+      OT_BOOKS.forEach(b => {
+        for (let ch = 1; ch <= b[2]; ch++) {
+          list.push({ track: 'ot', bookCode: b[0], bookName: b[1], chapter: ch, rotation: 1 });
+        }
+      });
+      return list;
+    }
+
+    function buildPsalmsMaster() {
+      const list = [];
+      for (let rot = 1; rot <= 2; rot++) {
+        for (let ch = 1; ch <= 150; ch++) {
+          list.push({ track: 'psalms', bookCode: 'PSA', bookName: 'Psalms', chapter: ch, rotation: rot });
+        }
+      }
+      return list;
+    }
+
+    function buildProverbsMaster() {
+      const list = [];
+      for (let rot = 1; rot <= 4; rot++) {
+        for (let ch = 1; ch <= 31; ch++) {
+          list.push({ track: 'proverbs', bookCode: 'PRO', bookName: 'Proverbs', chapter: ch, rotation: rot });
+        }
+      }
+      return list;
+    }
+
+    const NT_MASTER = buildNTMaster();
+    const OT_MASTER = buildOTMaster();
+    const PSALMS_MASTER = buildPsalmsMaster();
+    const PROVERBS_MASTER = buildProverbsMaster();
+
+    // Seed initial completions for realistic demo if empty
+    if (Object.keys(STATE.completions).length === 0) {
+      // Mark all past days before Aug 12 completed
+      const startDate = new Date(2026, 0, 1);
+      const aug12 = new Date(2026, 7, 12);
+      let dayIdx = 0;
+
+      let ntPtr = 0, otPtr = 0, psaPtr = 0, proPtr = 0;
+      for (let d = new Date(startDate); d <= aug12; d.setDate(d.getDate() + 1)) {
+        const yStr = d.getFullYear();
+        const mStr = String(d.getMonth() + 1).padStart(2, '0');
+        const dStr = String(d.getDate()).padStart(2, '0');
+        const dateKey = `${yStr}-${mStr}-${dStr}`;
+
+        const ntCount = Math.round(((dayIdx + 1) * 1040) / 365) - Math.round((dayIdx * 1040) / 365);
+        const otCount = Math.round(((dayIdx + 1) * 748) / 365) - Math.round((dayIdx * 748) / 365);
+        const psaCount = Math.round(((dayIdx + 1) * 300) / 365) - Math.round((dayIdx * 300) / 365);
+        const proCount = Math.round(((dayIdx + 1) * 124) / 365) - Math.round((dayIdx * 124) / 365);
+
+        for (let i = 0; i < ntCount && ntPtr < NT_MASTER.length; i++) {
+          const item = NT_MASTER[ntPtr++];
+          if (dateKey < '2026-08-12' || (dateKey === '2026-08-12' && i < 2)) {
+            STATE.completions[`${dateKey}_${item.bookCode}.${item.chapter}`] = true;
+          }
+        }
+        for (let i = 0; i < otCount && otPtr < OT_MASTER.length; i++) {
+          const item = OT_MASTER[otPtr++];
+          if (dateKey < '2026-08-12' || (dateKey === '2026-08-12' && i < 2)) {
+            STATE.completions[`${dateKey}_${item.bookCode}.${item.chapter}`] = true;
+          }
+        }
+        for (let i = 0; i < psaCount && psaPtr < PSALMS_MASTER.length; i++) {
+          const item = PSALMS_MASTER[psaPtr++];
+          if (dateKey < '2026-08-12') {
+            STATE.completions[`${dateKey}_${item.bookCode}.${item.chapter}`] = true;
+          }
+        }
+        for (let i = 0; i < proCount && proPtr < PROVERBS_MASTER.length; i++) {
+          const item = PROVERBS_MASTER[proPtr++];
+          if (dateKey < '2026-08-12') {
+            STATE.completions[`${dateKey}_${item.bookCode}.${item.chapter}`] = true;
+          }
+        }
+        dayIdx++;
+      }
+      localStorage.setItem('bible_pwa_completions_demo', JSON.stringify(STATE.completions));
+    }
+
+    function getAssignmentsForDate(dateStr) {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const targetDate = new Date(year, month - 1, day);
+      const startDate = new Date(year, 0, 1);
+      const diffDays = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
+
+      let ntPtr = 0, otPtr = 0, psaPtr = 0, proPtr = 0;
+
+      for (let dayIdx = 0; dayIdx < diffDays; dayIdx++) {
+        ntPtr += Math.round(((dayIdx + 1) * 1040) / 365) - Math.round((dayIdx * 1040) / 365);
+        otPtr += Math.round(((dayIdx + 1) * 748) / 365) - Math.round((dayIdx * 748) / 365);
+        psaPtr += Math.round(((dayIdx + 1) * 300) / 365) - Math.round((dayIdx * 300) / 365);
+        proPtr += Math.round(((dayIdx + 1) * 124) / 365) - Math.round((dayIdx * 124) / 365);
+      }
+
+      const ntCount = Math.round(((diffDays + 1) * 1040) / 365) - Math.round((diffDays * 1040) / 365);
+      const otCount = Math.round(((diffDays + 1) * 748) / 365) - Math.round((diffDays * 748) / 365);
+      const psaCount = Math.round(((diffDays + 1) * 300) / 365) - Math.round((diffDays * 300) / 365);
+      const proCount = Math.round(((diffDays + 1) * 124) / 365) - Math.round((diffDays * 124) / 365);
+
+      const res = [];
+      for (let i = 0; i < ntCount && ntPtr + i < NT_MASTER.length; i++) res.push(NT_MASTER[ntPtr + i]);
+      for (let i = 0; i < otCount && otPtr + i < OT_MASTER.length; i++) res.push(OT_MASTER[otPtr + i]);
+      for (let i = 0; i < psaCount && psaPtr + i < PSALMS_MASTER.length; i++) res.push(PSALMS_MASTER[psaPtr + i]);
+      for (let i = 0; i < proCount && proPtr + i < PROVERBS_MASTER.length; i++) res.push(PROVERBS_MASTER[proPtr + i]);
+
+      return { diffDays: diffDays + 1, assignments: res };
+    }
+
+    // Render Today Dashboard
+    function renderTodayDashboard() {
+      const { diffDays, assignments } = getAssignmentsForDate(STATE.currentDateStr);
+      const dObj = new Date(STATE.currentDateStr + 'T00:00:00');
+
+      document.getElementById('headerDayOfWeek').textContent = dObj.toLocaleDateString('en-US', { weekday: 'long' });
+      document.getElementById('headerDateStr').textContent = dObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('headerDayNumber').textContent = `Day ${diffDays} of 365`;
+
+      const goTodayBtn = document.getElementById('goTodayBtn');
+      if (STATE.currentDateStr !== '2026-08-12') goTodayBtn.classList.remove('hidden');
+      else goTodayBtn.classList.add('hidden');
+
+      // Group assignments by track
+      const tracks = {
+        nt: { name: 'New Testament', color: '#536B92', maxRot: 4, items: [] },
+        ot: { name: 'Old Testament (excl. Psalms & Proverbs)', color: '#A57846', maxRot: 1, items: [] },
+        psalms: { name: 'Psalms', color: '#67806D', maxRot: 2, items: [] },
+        proverbs: { name: 'Proverbs', color: '#A56359', maxRot: 4, items: [] }
+      };
+
+      let completedTotal = 0;
+      assignments.forEach(item => {
+        const key = `${STATE.currentDateStr}_${item.bookCode}.${item.chapter}`;
+        const isDone = !!STATE.completions[key];
+        if (isDone) completedTotal++;
+        tracks[item.track].items.push({ ...item, key, isDone });
+      });
+
+      const totalCount = assignments.length;
+      const percent = totalCount > 0 ? Math.round((completedTotal / totalCount) * 100) : 0;
+
+      document.getElementById('dailyProgressText').textContent = `${completedTotal} of ${totalCount} chapters (${percent}%)`;
+      document.getElementById('dailyProgressBar').style.width = `${percent}%`;
+
+      const banner = document.getElementById('dayCompletedBanner');
+      if (totalCount > 0 && completedTotal === totalCount) banner.classList.remove('hidden');
+      else banner.classList.add('hidden');
+
+      // Render track cards
+      const container = document.getElementById('trackCardsContainer');
+      container.innerHTML = '';
+
+      Object.keys(tracks).forEach(slug => {
+        const t = tracks[slug];
+        const rotNum = t.items[0]?.rotation || 1;
+        const doneCount = t.items.filter(i => i.isDone).length;
+        const allDone = t.items.length > 0 && doneCount === t.items.length;
+
+        const card = document.createElement('div');
+        card.className = `relative overflow-hidden rounded-2xl bg-surface-light dark:bg-surface-dark border transition-all shadow-sm ${allDone ? 'border-track-success/40 bg-track-success/5 dark:bg-track-success/10' : 'border-border-light dark:border-border-dark'}`;
+
+        let rowsHtml = '';
+        t.items.forEach(item => {
+          const noteVal = STATE.notes[item.key] || '';
+          rowsHtml += `
+            <div class="py-3 px-3 rounded-xl transition-all hover:bg-mutedSurface-light dark:hover:bg-mutedSurface-dark border border-transparent hover:border-border-light dark:hover:border-border-dark">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3.5">
+                  <button onclick="toggleCheck('${item.key}')" class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all shrink-0" style="border-color:${item.isDone ? t.color : 'currentColor'}; background-color:${item.isDone ? t.color : 'transparent'}">
+                    ${item.isDone ? '<i data-lucide="check" class="w-4 h-4 text-white"></i>' : ''}
+                  </button>
+                  <div>
+                    <span class="font-serif text-lg font-medium ${item.isDone ? 'line-through opacity-60' : ''}">${item.bookName} ${item.chapter}</span>
+                    ${noteVal ? `<p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark italic">"${noteVal}"</p>` : ''}
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button onclick="toggleNoteEditor('${item.key}')" class="p-2 rounded-lg text-txt-secondaryLight dark:text-txt-secondaryDark hover:bg-surface-light dark:hover:bg-surface-dark"><i data-lucide="message-square" class="w-4 h-4 ${noteVal ? 'text-track-ot' : ''}"></i></button>
+                  <button onclick="launchYouVersion('${item.bookCode}', ${item.chapter})" class="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-border-light dark:border-border-dark text-txt-secondaryLight dark:text-txt-secondaryDark hover:bg-surface-light dark:hover:bg-surface-dark flex items-center space-x-1">
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5 text-track-nt"></i><span class="hidden sm:inline">Listen ESV</span><i data-lucide="external-link" class="w-3 h-3 opacity-60"></i>
+                  </button>
+                </div>
+              </div>
+              <div id="noteBox_${item.key.replace('.', '_')}" class="hidden mt-3 pt-3 border-t border-border-light dark:border-border-dark">
+                <textarea id="noteInput_${item.key.replace('.', '_')}" rows="2" placeholder="Add study note for ${item.bookName} ${item.chapter}..." class="w-full text-xs p-2.5 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark">${noteVal}</textarea>
+                <div class="flex justify-end space-x-2 mt-2">
+                  <button onclick="saveNote('${item.key}')" class="px-3 py-1 text-xs font-medium rounded-md bg-track-nt text-white">Save Note</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        if (t.items.length === 0) {
+          rowsHtml = `<p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark italic py-2">No reading assigned for this track today.</p>`;
+        }
+
+        card.innerHTML = `
+          <div class="h-1.5 w-full" style="background-color:${t.color}"></div>
+          <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-widest" style="color:${t.color}">${t.name}</span>
+                <p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark">Rotation ${rotNum} of ${t.maxRot}</p>
+              </div>
+              ${allDone ? '<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-track-success/10 text-track-success flex items-center space-x-1"><i data-lucide="check-circle-2" class="w-4 h-4"></i><span>Track Complete</span></span>' : `<span class="text-xs font-mono">${doneCount}/${t.items.length} done</span>`}
+            </div>
+            <div class="space-y-1 my-2">${rowsHtml}</div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Toggle completion
+    function toggleCheck(key) {
+      STATE.completions[key] = !STATE.completions[key];
+      localStorage.setItem('bible_pwa_completions_demo', JSON.stringify(STATE.completions));
+      renderTodayDashboard();
+    }
+
+    function toggleNoteEditor(key) {
+      const box = document.getElementById(`noteBox_${key.replace('.', '_')}`);
+      if (box) box.classList.toggle('hidden');
+    }
+
+    function saveNote(key) {
+      const val = document.getElementById(`noteInput_${key.replace('.', '_')}`).value.trim();
+      if (val) STATE.notes[key] = val;
+      else delete STATE.notes[key];
+      localStorage.setItem('bible_pwa_notes_demo', JSON.stringify(STATE.notes));
+      renderTodayDashboard();
+    }
+
+    function launchYouVersion(bookCode, chapter) {
+      window.open(`https://www.bible.com/bible/59/${bookCode}.${chapter}.ESV`, '_blank');
+    }
+
+    // Date navigation
+    document.getElementById('prevDayBtn').addEventListener('click', () => {
+      const [y, m, d] = STATE.currentDateStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d - 1);
+      STATE.currentDateStr = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+      renderTodayDashboard();
+    });
+
+    document.getElementById('nextDayBtn').addEventListener('click', () => {
+      const [y, m, d] = STATE.currentDateStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d + 1);
+      STATE.currentDateStr = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+      renderTodayDashboard();
+    });
+
+    document.getElementById('goTodayBtn').addEventListener('click', () => {
+      STATE.currentDateStr = '2026-08-12';
+      renderTodayDashboard();
+    });
+
+    // Theme Switcher
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // Tab Navigation
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        document.querySelectorAll('.nav-item').forEach(b => {
+          b.classList.remove('text-track-nt', 'font-semibold');
+          b.classList.add('text-txt-secondaryLight', 'dark:text-txt-secondaryDark');
+        });
+        btn.classList.add('text-track-nt', 'font-semibold');
+
+        ['today', 'calendar', 'progress', 'catchup', 'study', 'settings'].forEach(t => {
+          const el = document.getElementById(`tab-${t}`);
+          if (t === tab) el.classList.remove('hidden');
+          else el.classList.add('hidden');
+        });
+
+        if (tab === 'calendar') renderCalendar();
+        if (tab === 'progress') renderProgress();
+        if (tab === 'catchup') renderCatchup();
+      });
+    });
+
+    // Modals
+    document.getElementById('openAllModalBtn').addEventListener('click', () => {
+      const { assignments } = getAssignmentsForDate(STATE.currentDateStr);
+      const list = document.getElementById('openAllList');
+      list.innerHTML = '';
+      assignments.forEach(a => {
+        const item = document.createElement('button');
+        item.className = 'w-full p-3 rounded-xl border border-border-light dark:border-border-dark flex items-center justify-between text-xs font-medium text-left hover:border-track-nt';
+        item.onclick = () => launchYouVersion(a.bookCode, a.chapter);
+        item.innerHTML = `<span>${a.bookName} ${a.chapter} (${a.track.toUpperCase()})</span><i data-lucide="external-link" class="w-4 h-4 text-track-nt"></i>`;
+        list.appendChild(item);
+      });
+      document.getElementById('openAllModal').classList.remove('hidden');
+      lucide.createIcons();
+    });
+
+    document.getElementById('closeOpenAllModal').onclick = () => document.getElementById('openAllModal').classList.add('hidden');
+    document.getElementById('btnDoneOpenAll').onclick = () => document.getElementById('openAllModal').classList.add('hidden');
+
+    document.getElementById('prepareStudyBriefBtn').addEventListener('click', () => {
+      const { assignments } = getAssignmentsForDate(STATE.currentDateStr);
+      let md = `# Daily Scripture Study\nDate: ${STATE.currentDateStr}\n\n## Today's Reading\n`;
+      assignments.forEach(a => md += `- ${a.bookName} ${a.chapter}\n`);
+      md += `\n---\n# Study Instructions\nYou are acting as a careful, dispassionate biblical scholar.\nAnalyze the supplied passages on their own terms before introducing theological conclusions.\n\n## Study Questions\n1. What is the main literary movement of today's passages?\n2. What repeated themes appear across the four reading tracks?\n`;
+      document.getElementById('notebookMarkdownPreview').textContent = md;
+      document.getElementById('notebookModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closeNotebookModal').onclick = () => document.getElementById('notebookModal').classList.add('hidden');
+    document.getElementById('copyBriefBtn').onclick = () => {
+      navigator.clipboard.writeText(document.getElementById('notebookMarkdownPreview').textContent);
+      document.getElementById('copyBriefLabel').textContent = 'Brief Copied!';
+      setTimeout(() => document.getElementById('copyBriefLabel').textContent = 'Copy Study Brief', 2000);
+    };
+
+    // Calendar view
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+      for (let d = 1; d <= 31; d++) {
+        const dStr = String(d).padStart(2, '0');
+        const keyDate = `2026-08-${dStr}`;
+        const isAug12 = keyDate === '2026-08-12';
+        const cell = document.createElement('button');
+        cell.className = `aspect-square rounded-xl p-1.5 flex flex-col items-center justify-between border transition-all ${isAug12 ? 'ring-2 ring-track-nt font-bold bg-track-nt/10' : 'border-border-light/40 dark:border-border-dark/40'}`;
+        cell.onclick = () => {
+          STATE.currentDateStr = keyDate;
+          document.querySelector('[data-tab="today"]').click();
+        };
+        const dotColor = keyDate < '2026-08-12' ? 'bg-track-success' : (isAug12 ? 'bg-track-ot' : 'bg-transparent');
+        cell.innerHTML = `<span class="text-xs font-sans">${d}</span><div class="w-2 h-2 rounded-full ${dotColor}"></div>`;
+        grid.appendChild(cell);
+      }
+    }
+
+    // Progress view
+    function renderProgress() {
+      const container = document.getElementById('progressContent');
+      container.innerHTML = `
+        <div class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark space-y-4">
+          <div class="flex justify-between items-center"><h2 class="text-lg font-serif font-bold">Overall Reading Year</h2><span class="text-2xl font-serif font-bold text-track-nt">61%</span></div>
+          <div class="w-full h-3 rounded-full bg-mutedSurface-light dark:bg-mutedSurface-dark overflow-hidden"><div class="h-full bg-track-nt rounded-full" style="width:61%"></div></div>
+        </div>
+        <div class="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark space-y-2">
+          <div class="flex justify-between"><span class="text-xs font-bold text-track-nt">New Testament</span><span class="text-xs font-mono font-bold">73%</span></div>
+          <p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark">Rotation 3 of 4</p>
+        </div>
+        <div class="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark space-y-2">
+          <div class="flex justify-between"><span class="text-xs font-bold text-track-ot">Old Testament</span><span class="text-xs font-mono font-bold">62%</span></div>
+          <p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark">Rotation 1 of 1</p>
+        </div>
+      `;
+    }
+
+    // Catch-up view
+    function renderCatchup() {
+      const container = document.getElementById('catchupContainer');
+      container.innerHTML = `
+        <div class="p-12 text-center rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
+          <i data-lucide="check-circle-2" class="w-12 h-12 text-track-success mx-auto mb-3"></i>
+          <h2 class="text-xl font-serif font-bold">You're caught up.</h2>
+          <p class="text-xs text-txt-secondaryLight dark:text-txt-secondaryDark mt-1">All readings from past calendar dates have been completed.</p>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // Initial load
+    renderTodayDashboard();
+  </script>
+</body>
+</html>
